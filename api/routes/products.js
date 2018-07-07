@@ -11,7 +11,17 @@ router.get('/',(req,res,err)=>{
     .then(docs=>{
         res.json({
             count:docs.length,
-            "products":docs
+            "products":docs.map(doc=>{
+                return{
+                    name:doc.name,
+                    price:doc.price,
+                    _id:doc._id,
+                    request:{
+                        type:'GET',
+                        url:'http://localhost:3000/products/' + doc._id
+                    }
+                }
+            })
         })
     })
     .catch(err=>{
@@ -31,7 +41,16 @@ router.post('/',(req,res,err)=>{
     product.save().then(result=>{
         console.log(result)
         return res.status(201).json({
-            product:product
+            product:{
+                name:result.name,
+                price:result.price,
+                _id:result._id,
+                request:{
+                    type:'GET',
+                    url:'http://localhost:3000/products/' + result._id
+                }
+            }
+            
         })
     })
 
@@ -59,6 +78,22 @@ router.get('/:productId',(req,res,err)=>{
     .catch(err=>{
         res.status(500).json({
             error:err
+        })
+    })
+})
+
+
+router.delete('/:productId',(req,res,err)=>{
+    Product.remove({_id: req.params.productId}).exec()
+    .then(docs=>{
+        res.json({
+            "message":"product deleted",
+            product:docs
+        })
+    })
+    .catch(err=>{
+        res.json({
+            "message":"Something error"
         })
     })
 })
