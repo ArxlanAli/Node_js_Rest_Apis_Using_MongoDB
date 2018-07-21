@@ -60,6 +60,11 @@ router.post('/',(req,res,err)=>{
 
 router.get('/:orderId',(req,res,err)=>{
     Order.findById(req.params.orderId).exec().then(order=>{
+        if(!order){
+            return res.status(404).json({
+                message:"Order is not found"
+            })
+        }
         res.status(200).json({
             order:order
         })

@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 const app = express()
 const mongoose = require('mongoose')
 
+app.use('/uploads',express.static('uploads'))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 

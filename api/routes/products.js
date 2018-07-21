@@ -1,12 +1,37 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const router = express.Router()
+const multer = require('multer')
+
+const storage = multer.diskStorage({
+    destination:function(req,file,cb){
+        cb(null,'./uploads')
+    },
+    filename:function(req,file,cb){
+        cb(null,Date.now() + file.originalname)
+    }
+})
+const fileFilter = (req,file,cb)=>{
+    //reject a file
+    if(file.mimeType === 'image/jpeg' || file.mimeType === 'image/png'){
+        cb(null,true)
+    }else{
+        cb(null,true)
+    }
+}
+
+const upload = multer({storage:storage, 
+    limit:{
+        fileSize:1024 * 1024 * 5
+    },
+    fileFilter:fileFilter
+})
 
 const Product = require('../models/products')
 
 router.get('/',(req,res,err)=>{
     Product.find()
-    .select('name price _id')
+    .select('name price _id productImage')
     .exec()
     .then(docs=>{
         res.json({
@@ -16,6 +41,7 @@ router.get('/',(req,res,err)=>{
                     name:doc.name,
                     price:doc.price,
                     _id:doc._id,
+                    productImage:doc.productImage,
                     request:{
                         type:'GET',
                         url:'http://localhost:3000/products/' + doc._id
@@ -31,12 +57,13 @@ router.get('/',(req,res,err)=>{
     })
 })
 
-router.post('/',(req,res,err)=>{
+router.post('/',upload.single('productImage'),(req,res,err)=>{
 
     const product = new Product({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
-        price: req.body.price
+        price: req.body.price,
+        productImage:req.file.path
     })
     product.save().then(result=>{
         console.log(result)
@@ -46,7 +73,7 @@ router.post('/',(req,res,err)=>{
                 price:result.price,
                 _id:result._id,
                 request:{
-                    type:'GET',
+                    type:'POST',
                     url:'http://localhost:3000/products/' + result._id
                 }
             }
