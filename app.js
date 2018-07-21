@@ -9,6 +9,7 @@ app.use(bodyParser.json())
 
 const productRoutes = require('./api/routes/products.js')
 const ordersRoutes = require('./api/routes/orders.js')
+const userRoutes = require('./api/routes/user')
 
 
 
@@ -34,6 +35,7 @@ mongoose.connection.on('disconnected', function () {
 //tnv23TgB3IiSReU7
 app.use('/products',productRoutes)
 app.use('/orders',ordersRoutes)
+app.use('/user',userRoutes)
 
 
 app.use((req,res,next)=>{
